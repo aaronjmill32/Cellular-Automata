@@ -1,0 +1,194 @@
+
+<html>
+  <head>
+    <style>
+      body { margin:0; padding:0 }
+    </style>
+  </head>
+
+  <body>
+    <center><canvas id = "canvas" width = "500px" height = "500px" style = "border-style:solid;"></canvas>
+  </center></body>
+  
+  
+  <script>
+  var canvas = document.getElementById("canvas");
+  var ctx = canvas.getContext("2d");
+  var cells = [];
+  var y = 0;
+  var check, north,south,east,west,nw,sw,ne,se;
+  
+  
+  function createArray(cells){	
+		
+		for (var i = 0; i < 400; i++){
+			var id = i;
+			var rando = Math.floor(Math.random() * 2);
+			var alivemod = rando;
+			var cell = {id: id, state: alivemod, nextstate:0};
+			cells.push(cell);	
+		}
+  }
+  
+  function drawCells(){
+
+		ctx.clearRect(2,0,500,500);
+		var x = 0;
+		
+		for (var j = 0; j <20; j++){	
+		for (var i = 0; i < 20; i++){
+			
+				if (cells[x].state === 1){
+					ctx.fillStyle = "black";				
+					ctx.fillRect( (i * 25)+1, j * 25 +1, 22,22);
+				}
+				else if (cells[x].state ===0){
+					ctx.fillStyle = "white";
+					ctx.strokeStyle = "black";
+					ctx.strokeRect( i * 25 +1, j * 25 +1, 22,22);
+				}
+				
+				x++;
+			}
+		}	
+		
+		laws(cells);
+		requestAnimationFrame(drawCells);
+	
+	}
+	
+	function laws(cells){
+		
+			for (var x = 0; x < 400; x++){
+				//set everything to zero
+				check = 0;
+				north =0;
+				south = 0;
+				east = 0;
+				west = 0;
+				nw = 0;
+				sw = 0;
+				se =0;
+				ne = 0;
+				var flag = false;
+				
+				//check for around the current cell
+				if (cells[x].id <20){north = 0;	nw = 0; ne = 0}
+				else { north = cells[x-20].state;}
+				if (cells[x].id >379){south = 0; sw = 0; se = 0;}
+				else { south = cells[x+20].state;}
+				if (cells[x].id %20 ===0){west = 0;	nw  =0; sw = 0;}
+				else { west = cells[x-1].state;}
+				if ((cells[x].id +1) %20 ===0){east = 0; ne = 0; sw = 0;}
+				else { east = cells[x+1].state;}
+				
+				check = north + south + east + west;
+				
+				//checking diagonals
+				//nw
+				if (cells[x].id %20 ===0){
+					nw = 0;
+					flag = true;
+				}
+				if (cells[x].id <20){
+						nw = 0;
+				}
+				else if (!flag){
+					nw = cells[x-21].state;
+				}
+				
+				flag = false;
+				//ne
+				if ((cells[x].id +1) %20 ===0){
+					ne = 0;
+					flag = true;
+				}
+				if (cells[x].id <20){
+						ne = 0;
+				}
+				else if (!flag){
+					ne = cells[x-19].state;
+				}
+				flag = false;
+				//sw & se
+				//sw
+				if (cells[x].id %20 ===0){
+					sw = 0;
+					flag = true;
+				}
+				if (cells[x].id >379){
+						sw = 0;
+				}
+				else if (!flag){
+					sw = cells[x+19].state;
+				}
+				flag = false;
+				//se
+				if ((cells[x].id +1) %20 ===0){
+					se = 0;
+					flag = true;
+				}
+				if(cells[x].id >379){
+						se = 0;
+				}
+				else if(!flag){
+					se = cells[x+21].state;
+				}
+				flag = false;
+				check = check + sw+se+nw+ne;
+				
+				
+				if (cells[x].state ===1){
+					if (check >3)
+					{
+						cells[x].nextstate = 0;
+					}
+					if (check ===2 || check ===3){
+						cells[x].nextstate=1;
+					}
+					if (check < 2){
+						cells[x].nextstate = 0;
+					}
+				}
+				else{
+					if (check ===3){
+						cells[x].nextstate = 1;
+					}
+				}
+				//console.log(cells[x].id +" current:"+ cells[x].state+ " nextstate:" + cells[x].nextstate +", "+ "N:" + north + "S:" + south + "W" + west + "E" + east+ " total:"+check)
+						
+			}
+			
+			for (var i= 0; i < 400; i++){
+				
+				if (cells[i].nextstate ===1){
+					cells[i].state = 1;
+					cells[i].nextstate = 0;
+				}
+				else if (cells[i].nextstate ===0){
+					cells[i].state =0;
+					cells[i].nextstate =0;
+				}
+				
+				//console.log(cells[i].id + ": current state:" + cells[i].state + " newstate:" + cells[i].nextstate)
+			}
+	
+			
+		
+		
+	}
+	
+	function init(cells){
+		createArray(cells);		
+		window.requestAnimationFrame(drawCells); 
+	}
+  
+  	init(cells);
+	
+	
+  
+
+  
+  
+
+  </script>
